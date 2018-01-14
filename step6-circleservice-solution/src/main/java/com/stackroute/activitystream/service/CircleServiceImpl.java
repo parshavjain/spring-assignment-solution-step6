@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stackroute.activitystream.model.Circle;
-import com.stackroute.activitystream.model.User;
+
 import com.stackroute.activitystream.repository.CircleRepository;
-import com.stackroute.activitystream.repository.UserRepository;
 
 /*
 * Service classes are used here to implement additional business logic/validation. 
@@ -30,9 +29,6 @@ public class CircleServiceImpl implements CircleService {
 	@Autowired
 	CircleRepository circleRepository;
 
-	@Autowired
-	UserRepository userRepository;
-
 	/*
 	 * A circle should only be created if the circle does not already exist or the
 	 * creatorId is a valid username.
@@ -45,11 +41,10 @@ public class CircleServiceImpl implements CircleService {
 			if (null != circle.getCreatorId()) {
 				circle.setCreatorId(circle.getCreatorId().toLowerCase());
 			}
-			User user = userRepository.findOne(circle.getCreatorId());
 
 			if (null != circle.getCircleName()) {
 				Circle tempCircle = circleRepository.findOne(circle.getCircleName());
-				if (null == tempCircle && null != user) {
+				if (null == tempCircle) {
 					circleRepository.save(circle);
 					return true;
 				}
@@ -66,7 +61,7 @@ public class CircleServiceImpl implements CircleService {
 	 */
 	public List<Circle> getAllCircles() {
 		List<Circle> circles = new ArrayList<Circle>();
-		circleRepository.findAll().forEach(circles :: add);
+		circleRepository.findAll().forEach(circles::add);
 		return circles;
 	}
 
@@ -76,7 +71,7 @@ public class CircleServiceImpl implements CircleService {
 	 */
 	public List<Circle> getAllCircles(String searchString) {
 		List<Circle> circles = new ArrayList<Circle>();
-		circleRepository.findAll().forEach(circles :: add);
+		circleRepository.findAll().forEach(circles::add);
 		return circles;
 	}
 

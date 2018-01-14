@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.stackroute.activitystream.model.Circle;
 import com.stackroute.activitystream.model.Message;
-import com.stackroute.activitystream.model.User;
+
 import com.stackroute.activitystream.model.UserTag;
 import com.stackroute.activitystream.repository.MessageRepository;
 import com.stackroute.activitystream.repository.UserTagRepository;
@@ -22,63 +21,53 @@ import com.stackroute.activitystream.repository.UserTagRepository;
 * future.
 * */
 @Service
-public class MessageServiceImpl implements MessageService{
-	
+public class MessageServiceImpl implements MessageService {
+
 	/*
-	 * Autowiring should be implemented for the UserTag,
-	 * UserTagRepository, MessageRepository.
-	 *  Please note that we should not create any object using the new keyword
-	 * */
+	 * Autowiring should be implemented for the UserTag, UserTagRepository,
+	 * MessageRepository. Please note that we should not create any object using the
+	 * new keyword
+	 */
 	@Autowired
 	MessageRepository messageRepository;
-	
+
 	@Autowired
 	UserTagRepository userTagRepository;
-	
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	CircleService circleService;
-	
+
 	/*
-	 * This method should be used to get all messages from a specific circle. Call the corresponding method of Respository interface.
-	 * */
-	public List<Message> getMessagesFromCircle(String circleName,int pageNumber) {		
+	 * This method should be used to get all messages from a specific circle. Call
+	 * the corresponding method of Respository interface.
+	 */
+	public List<Message> getMessagesFromCircle(String circleName, int pageNumber) {
 		List<Message> messages = null;
 		if (null != circleName) {
-			messages = (List<Message>)messageRepository.getMessagesFromCircle(circleName);
+			messages = (List<Message>) messageRepository.getMessagesFromCircle(circleName);
 		}
 		return messages;
 	}
-	
+
 	/*
-	 * This method should be used to get all messages from a specific user to another
-	 * specific user. Call the corresponding method of Respository interface.
+	 * This method should be used to get all messages from a specific user to
+	 * another specific user. Call the corresponding method of Respository
+	 * interface.
 	 */
-	public List<Message> getMessagesFromUser(String userName,String otherUsername,int pageNumber) {
+	public List<Message> getMessagesFromUser(String userName, String otherUsername, int pageNumber) {
 		List<Message> messages = null;
 		if (null != userName) {
-			messages = (List<Message>)messageRepository.getMessagesFromUser(userName, otherUsername);
+			messages = (List<Message>) messageRepository.getMessagesFromUser(userName, otherUsername);
 		}
 		return messages;
 	}
-	
+
 	/*
-	 * This method should be used to send messages to a specific circle. Please validate
-	 * whether the circle exists and whether the sender is subscribed to the circle. Call the corresponding method of Respository interface.
+	 * This method should be used to send messages to a specific circle. Please
+	 * validate whether the circle exists and whether the sender is subscribed to
+	 * the circle. Call the corresponding method of Respository interface.
 	 */
-	public boolean sendMessageToCircle(String circleName,Message message) {
+	public boolean sendMessageToCircle(String circleName, Message message) {
 		try {
 			if (null != message && null != message.getSenderName()) {
-				if (!userService.exists(message.getSender())) {
-					return false;
-				}
 				if (null != circleName) {
-					Circle circle = circleService.get(circleName);
-					if (null == circle) {
-						return false;
-					}
 					message.setPostedDate();
 					message.setCircleName(circleName);
 					messageRepository.save(message);
@@ -90,23 +79,16 @@ public class MessageServiceImpl implements MessageService{
 		}
 		return false;
 	}
-	
-	
+
 	/*
-	 * This method should be used to send messages to a specific user. Please validate
-	 * whether the sender and receiver are valid users. Call the corresponding method of Respository interface.
+	 * This method should be used to send messages to a specific user. Please
+	 * validate whether the sender and receiver are valid users. Call the
+	 * corresponding method of Respository interface.
 	 */
-	public boolean sendMessageToUser(String username,Message message) {
+	public boolean sendMessageToUser(String username, Message message) {
 		try {
 			if (null != message && null != message.getSenderName()) {
-				if (!userService.exists(message.getSender())) {
-					return false;
-				}
 				if (null != username) {
-					User receiver = userService.get(username);
-					if (null == receiver) {
-						return false;
-					}
 					message.setReceiverId(username);
 					message.setPostedDate();
 					messageRepository.save(message);
@@ -118,17 +100,18 @@ public class MessageServiceImpl implements MessageService{
 			return false;
 		}
 		return false;
-		
-	} 	
-	
+
+	}
+
 	/*
-	 * This method should be used to list out all tags from all existing messages. Call the corresponding method of Respository interface.
+	 * This method should be used to list out all tags from all existing messages.
+	 * Call the corresponding method of Respository interface.
 	 */
-	public List<String> listTags() {		
-		return (List<String>)messageRepository.listAllTags();
-		
-		}
-	
+	public List<String> listTags() {
+		return (List<String>) messageRepository.listAllTags();
+
+	}
+
 	/*
 	 * This method should be used to list out all subscribed tags by a specific
 	 * user. Call the corresponding method of Respository interface.
@@ -144,21 +127,23 @@ public class MessageServiceImpl implements MessageService{
 		}
 		return tags;
 	}
-	
+
 	/*
-	 * This method should be used to show all public messages(messages sent to circles)
-	 * containing a specific tag. Call the corresponding method of Respository interface. 
+	 * This method should be used to show all public messages(messages sent to
+	 * circles) containing a specific tag. Call the corresponding method of
+	 * Respository interface.
 	 */
-	public List<Message> showMessagesWithTag(String tag,int pageNumber) {
+	public List<Message> showMessagesWithTag(String tag, int pageNumber) {
 		List<Message> messages = null;
 		if (null != tag) {
 			messages = messageRepository.showMessagesWithTag(tag);
 		}
 		return messages;
 	}
-	
+
 	/*
-	 * This method should be used to subscribe a user to a specific tag. Call the corresponding method of Respository interface.
+	 * This method should be used to subscribe a user to a specific tag. Call the
+	 * corresponding method of Respository interface.
 	 */
 	public boolean subscribeUserToTag(String userName, String tag) {
 		if (null != userName && null != tag) {
@@ -170,9 +155,10 @@ public class MessageServiceImpl implements MessageService{
 		}
 		return false;
 	}
-	
+
 	/*
-	 * This method should be used to unsubscribe a user from a specific tag. Call the corresponding method of Respository interface.
+	 * This method should be used to unsubscribe a user from a specific tag. Call
+	 * the corresponding method of Respository interface.
 	 */
 	public boolean unsubscribeUserToTag(String userName, String tag) {
 		if (null != userName && null != tag) {

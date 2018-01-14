@@ -14,13 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stackroute.activitystream.model.Circle;
-import com.stackroute.activitystream.model.User;
 import com.stackroute.activitystream.model.UserCircle;
-import com.stackroute.activitystream.service.CircleService;
 import com.stackroute.activitystream.service.UserCircleService;
 import com.stackroute.activitystream.service.UserCircleServiceImpl;
-import com.stackroute.activitystream.service.UserService;
 
 /*
  * As in this assignment, we are working with creating RESTful web service, hence annotate
