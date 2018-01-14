@@ -32,47 +32,49 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* 
 	* Write a query to retrieve all messages from database posted on specific circle.
 	* */
-	@Query
+	@Query("From Message WHERE circleName = (?1)")
 	public List<Message> getMessagesFromCircle(String circleName);
-	
-	
+
 	/*
-	* This method will retrieve all messages in database which are sent between two
-	* specific users specified in the method parameters. The messages should come
-	* ordered by postedDate in descending order
-	* 
-	* Write a query to retrieve all messages from the database send between two specified users. 
-	* */
-	@Query
+	 * This method will retrieve all messages in database which are sent between two
+	 * specific users specified in the method parameters. The messages should come
+	 * ordered by postedDate in descending order
+	 * 
+	 * Write a query to retrieve all messages from the database send between two
+	 * specified users.
+	 */
+	@Query("FROM Message WHERE senderName = (?1) and receiverId = (?2)")
 	public List<Message> getMessagesFromUser(String username, String otherUsername);
-	
+
 	/*
-	* This method will retrieve all distinct tags available in all messages and write a query for the same.
-	* 
-	* */
-	@Query
+	 * This method will retrieve all distinct tags available in all messages and
+	 * write a query for the same.
+	 * 
+	 */
+	@Query("SELECT DISTINCT tag FROM Message")
 	public List<String> listAllTags();
+
 	/*
-	* This method will retrieve all tags which are subscribed by a specific user and write a query for the same.
-	* 
-	* */
-	@Query
+	 * This method will retrieve all tags which are subscribed by a specific user
+	 * and write a query for the same.
+	 * 
+	 */
+	@Query("SELECT tag FROM Message WHERE senderName = (?1)")
 	public List<String> listMyTags(String username);
-	
-	
+
 	/*
-	* This method will retrieve all messages containing tag matching which is 
-	* matching the tag in method parameter among all messages and write a query for the same.
-	* 
-	* */
-	@Query
+	 * This method will retrieve all messages containing tag matching which is
+	 * matching the tag in method parameter among all messages and write a query for
+	 * the same.
+	 * 
+	 */
+	@Query("FROM Message WHERE tag = (?1)")
 	public List<Message> showMessagesWithTag(String tag);
-	
-	
+
 	/*
-	* This method will retrieve an UserTag from UserTag table which matches the username
-	* and tag in parameter, write a query for the same.
-	* */
-	@Query
+	 * This method will retrieve an UserTag from UserTag table which matches the
+	 * username and tag in parameter, write a query for the same.
+	 */
+	@Query("FROM Message WHERE tag = (?1) and senderName = (?1)")
 	public UserTag getUserTag(String username, String tag);
 }

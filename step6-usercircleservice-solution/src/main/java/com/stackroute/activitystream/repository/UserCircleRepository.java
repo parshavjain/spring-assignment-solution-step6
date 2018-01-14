@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import com.stackroute.activitystream.model.UserCircle;
 
@@ -30,18 +31,19 @@ public interface UserCircleRepository extends CrudRepository<UserCircle, Integer
 	* Write a query to get user circle object object from Database useing username and circlename.
 	* 
 	* */
-	@Query
-	UserCircle getUsernameAndCircleName( String username, String circleName);
-	
+	@Query("FROM UserCircle WHERE username = :username and circleName = :circleName")
+	UserCircle getUsernameAndCircleName(@Param("username") String username, @Param("circleName") String circleName);
+
 	/*
-	* This method will retrieve an circleName from UserCircle table which is matching
-	* the username in the method parameter. This method will help us to find out all
-	* subscribed circles by a specific user
-	* 
-	* Write a query to retrive circle name from usercircle matching with username
-	* */
-	@Query
-	List<String> findCircleNameByUserName(String username);
+	 * This method will retrieve an circleName from UserCircle table which is
+	 * matching the username in the method parameter. This method will help us to
+	 * find out all subscribed circles by a specific user
+	 * 
+	 * Write a query to retrive circle name from usercircle matching with username
+	 *
+	 */
+	@Query("SELECT circleName FROM UserCircle WHERE username = :username")
+	List<String> findCircleNameByUserName(@Param("username") String username);
 	
 
 	

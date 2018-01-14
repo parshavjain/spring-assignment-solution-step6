@@ -27,5 +27,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/ActivityStream-step6-CircleService"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ActivityStream-step6-UserService"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

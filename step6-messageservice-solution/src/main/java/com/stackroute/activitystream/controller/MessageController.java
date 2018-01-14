@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stackroute.activitystream.model.Message;
@@ -27,7 +28,7 @@ import com.stackroute.activitystream.service.MessageServiceImpl;
  * format. Starting from Spring 4 and above, we can use @RestController annotation which 
  * is equivalent to using @Controller and @ResposeBody annotation
  */
-
+@RestController
 public class MessageController {
 	/*
 	 * From the problem statement, we can understand that the application	 requires us to 
@@ -52,7 +53,8 @@ public class MessageController {
 	 * Autowiring should be implemented for the MessageService. Please note that 
 	 * we should not create any object using the new keyword
 	 * */
-	
+	@Autowired
+	private MessageService messageService;
 	
 	
 	/* Define a handler method which will send a message to a circle by reading the Serialized message
@@ -66,7 +68,18 @@ public class MessageController {
 	 * This handler method should map to the URL "/api/message/sendMessageToCircle/{circleName}" using HTTP POST method"
 	 * where "circleName" should be replaced by the destination circle name without {} 
 	*/
-	
+	@RequestMapping(value = "/api/message/sendMessageToCircle/{circleName}", method = RequestMethod.POST)
+	private ResponseEntity<Message> sendMessageToCircle(@PathVariable("circleName") String circleName,
+			@RequestBody Message message) {
+		if (null != message && null != circleName) {
+			message.setCircleName(circleName);
+			boolean success = messageService.sendMessageToCircle(circleName, message);
+			if (success) {
+				return new ResponseEntity<Message>(HttpStatus.OK);
+			}
+		}
+		return new ResponseEntity<Message>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	
 	/* Define a handler method which will send a message to an individual user by reading the Serialized message
@@ -80,7 +93,18 @@ public class MessageController {
 	 * This handler method should map to the URL "/api/message/sendMessageToUser/{receiverId}" using HTTP POST method"
 	 * where "receiverId" should be replaced by the recipient user name without {} 
 	*/
-	
+	@RequestMapping(value = "/api/message/sendMessageToUser/{receiverId}", method = RequestMethod.POST)
+	private ResponseEntity<Message> sendMessageToUser(@PathVariable("receiverId") String receiverId,
+			@RequestBody Message message) {
+		if (null != message && null != receiverId) {
+			message.setReceiverId(receiverId);
+			boolean success = messageService.sendMessageToUser(receiverId, message);
+			if (success) {
+				return new ResponseEntity<Message>(HttpStatus.OK);
+			}
+		}
+		return new ResponseEntity<Message>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	
 	
@@ -98,7 +122,14 @@ public class MessageController {
 	 * and "receiverUsername" should be replaced by a valid user name without {}
 	 * and "pageNumber" should be replaced by the numeric page number that we are looking for without {}
 	*/
-	
+	@RequestMapping(value = "/api/message/getMessagesByUser/{senderUsername}/{receiverUserName}/{pageNumber}", method = RequestMethod.GET)
+	private ResponseEntity<List<Message>> getMessagesByUser(@PathVariable("senderUsername") String senderUsername,
+			@PathVariable("receiverUserName") String receiverUserName, @PathVariable("pageNumber") int pageNumber) {
+		return new ResponseEntity<List<Message>>(
+				messageService.getMessagesFromUser(senderUsername, receiverUserName, pageNumber),
+				HttpStatus.OK             
+				);
+	}
 	
 	
 	
@@ -115,7 +146,12 @@ public class MessageController {
 	 * where "circleName" should be replaced by a valid user name without {}
 	 * and "pageNumber" should be replaced by the numeric page number that we are looking for without {}
 	*/
-	
+	@RequestMapping(value = "/api/message/getMessagesByCircle/{circleName}/{pageNumber}", method = RequestMethod.GET)
+	private ResponseEntity<List<Message>> getMessagesByCircle(@PathVariable("circleName") String circleName,
+			@PathVariable("pageNumber") int pageNumber) {
+		return new ResponseEntity<List<Message>>(
+				messageService.getMessagesFromCircle(circleName, pageNumber), HttpStatus.OK);
+	}
 	
 	
 	/* As per our problem statement, each message can have some tags. We will learn how to extract the tags from 
@@ -129,7 +165,11 @@ public class MessageController {
 	 * "/api/message/listAllTags" using HTTP GET method"
 	 
 	*/
-	
+	@RequestMapping(value = "/api/message/listAllTags", method = RequestMethod.GET)
+	private ResponseEntity<List<String>> listAllTags() {
+		return new ResponseEntity<List<String>>(
+				messageService.listTags(), HttpStatus.OK);
+	}
 	
 	
 	
@@ -146,7 +186,12 @@ public class MessageController {
 	 * where "tag" should be replaced by a tag(string) without {}
 	 * and "pageNumber" should be replaced by the numeric page number that we are looking for without {}
 	*/
-	
+	@RequestMapping(value = "/api/message/showMessagesWithTag/{tag}/{pageNumber}", method = RequestMethod.GET)
+	private ResponseEntity<List<Message>> showMessagesWithTag(@PathVariable("tag") String tag,
+			@PathVariable("pageNumber") int pageNumber) {
+		return new ResponseEntity<List<Message>>(
+				messageService.showMessagesWithTag(tag, pageNumber), HttpStatus.OK);
+	}
 	
 	
 	/* As per our problem statement, user can subscribe to one or more tag(s). Hence, the user will be able to see all
@@ -163,7 +208,17 @@ public class MessageController {
 	 * where "username" should be replaced by a valid user name without {}
 	 * and "tag" should be replaced by a valid tag without {}
 	*/
-	
+	@RequestMapping(value = "/api/message/subscribe/{username}/{tag}", method = RequestMethod.PUT)
+	private ResponseEntity<UserTag> subscribe(@PathVariable("username") String userName,
+			@PathVariable("tag") String tag) {
+		if(null != userName && null != tag) {
+			boolean success = messageService.subscribeUserToTag(userName, tag);
+			if(success) {
+				return new ResponseEntity<UserTag>(HttpStatus.OK);
+			}
+		}		
+		return new ResponseEntity<UserTag>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	
 	
@@ -181,7 +236,17 @@ public class MessageController {
 	 * where "username" should be replaced by a valid user name without {}
 	 * and "tag" should be replaced by a valid tag without {}
 	*/
-	
+	@RequestMapping(value = "/api/message/unsubscribe/{username}/{tag}", method = RequestMethod.PUT)
+	private ResponseEntity<UserTag> unsubscribe(@PathVariable("username") String userName,
+			@PathVariable("tag") String tag) {
+		if(null != userName && null != tag) {
+			boolean success = messageService.unsubscribeUserToTag(userName, tag);
+			if(success) {
+				return new ResponseEntity<UserTag>(HttpStatus.OK);
+			}
+		}		
+		return new ResponseEntity<UserTag>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	
 	
@@ -195,4 +260,12 @@ public class MessageController {
 	 * using HTTP GET method"
 	 * where "username" should be replaced by a valid user name without {}
 	*/
+	@RequestMapping(value = "/api/message/tags/search/user/{username}", method = RequestMethod.GET)
+	private ResponseEntity<List<String>> searchTag(@PathVariable("username") String username) {		
+		List<String> tagsList = messageService.listMyTags(username);
+		if(null != tagsList) {
+			return new ResponseEntity<List<String>>(tagsList, HttpStatus.OK);
+		}
+		return new ResponseEntity<List<String>>(HttpStatus.UNAUTHORIZED);
+	}
 	}
